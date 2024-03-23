@@ -1,5 +1,5 @@
-default: test.c
-	gcc test.c -lsndfile -o test
+default: main.c
+	gcc main.c -lsndfile -o main
 
-ansi: test.c
-	gcc test.c -lsndfile -o test -ansi -pedantic -Wall -Werror
+ansi: main.c
+	gcc main.c -lsndfile -o main -ansi -pedantic -Wall -Werror
