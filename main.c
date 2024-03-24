@@ -103,7 +103,7 @@ int loop (const char* input_filepath, unsigned int start_time, unsigned int end_
     output_info.channels = info.channels;
     output_info.format = info.format;
     fout = sf_open(output_filepath, SFM_WRITE, &output_info);
-    if (f == NULL) {
+    if (fout == NULL) {
         sf_close(f);
         printf("ERROR: Could not open %s!\n", output_filepath);
     }
