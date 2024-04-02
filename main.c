@@ -30,21 +30,94 @@ sf_count_t find_loop_end (sndbuf* start_buf, sndbuf* end_buf, int channels) {
     int diff;
     unsigned int i;
     unsigned int j;
+    
+    /* CHANGES START HERE */
+    /* Determine range of values */
+    unsigned short peak;
+    short sample;
+    for (i = 0; i < duration; i++) {
+	sample = start_buf->data[i * channels];
+	if (sample < 0) {
+	    sample *= -1;
+	}
+	if (sample > peak) {
+	    peak = sample;
+	}
+    }
+
+    /* Determine range for peaks */
+    peak *= 0.5;
+
+    /* Isolate peaks in start_buf (set all others to 0) */
+    short* start_peaks = (short*) malloc(duration * sizeof(short));
+    unsigned short temp;
+    for (i = 0; i < duration; i++) {
+	sample = start_buf->data[i * channels];
+	if (sample < 0) {
+	    temp = sample * -1;
+	}
+	else {
+	    temp = sample;
+	}
+
+	if (temp > peak) {
+	    start_peaks[i] = sample;
+	}
+	else {
+	    start_peaks[i] = 0;
+	}
+    }
+
+    /* Isolate peaks in end_buf */
+    short* end_peaks = (short*) malloc(duration * 2 * sizeof(short));
+    for (i = 0; i < duration * 2; i++) {
+	sample = end_buf->data[i * channels];
+	if (sample < 0) {
+	    temp = sample * -1;
+	}
+	else {
+	    temp = sample;
+	}
+
+	if (temp > peak) {
+	    end_peaks[i] = sample;
+	}
+	else {
+	    end_peaks[i] = 0;
+	}
+    }
 
     for (i = 0; i < duration; i++) {
+	score = 0;
+	for (j = 0; j < duration; j++) {
+	    diff = start_peaks[i] - end_peaks[i];
+	    score += diff * diff;
+	}
+	if (score < best_score) {
+	    best_score = score;
+	    best_offset = i;
+	}
+    }
+
+    /* CHANGES END HERE */
+
+    /* for (i = 0; i < duration; i++) { */
         /* Calculate score for current offset */
+	/*
         score = 0;
         for (j = 0; j < duration * channels; j += 100) {
             diff = start_buf->data[j] - end_buf->data[i * channels + j];
             score += diff * diff;
         }
-
+    	*/
         /* Update best score */
+    /*
         if (score < best_score) {
             best_score = score;
             best_offset = i;
         }
     }
+    */
 
     printf("Best score: %lu\n", best_score);
     printf("Best offset: %d\n", best_offset);
